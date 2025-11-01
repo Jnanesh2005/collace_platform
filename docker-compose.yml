@@ -20,7 +20,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     command: >
-      sh -c "python manage.py migrate &&
+      sh -c "python manage.py makemigrations users posts communities blips &&
+             python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/app

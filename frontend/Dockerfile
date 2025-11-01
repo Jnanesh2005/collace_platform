@@ -6,8 +6,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Clean install with specific flags
-RUN npm ci --silent --no-optional && npm cache clean --force
-
+RUN npm install --legacy-peer-deps --silent --no-optional && npm cache clean --force
 # Copy source code
 COPY . .
 

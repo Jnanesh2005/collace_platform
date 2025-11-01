@@ -11,15 +11,11 @@ interface AuthContextType {
   updateUser: (userData: Partial<User>) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// FIX 1: Added "export" to this line
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+// FIX 2: Removed the duplicate useAuth hook that was here.
+// The correct one is in /hooks/use-auth.ts
 
 interface AuthProviderProps {
   children: ReactNode;

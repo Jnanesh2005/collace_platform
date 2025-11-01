@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 
-
 class BlipsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'blips'
+    name = 'apps.blips'

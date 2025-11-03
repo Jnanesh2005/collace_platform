@@ -10,14 +10,18 @@ from .serializers import PostSerializer, CreatePostSerializer, CommentSerializer
 class PostListView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
+    queryset = Post.objects.all()  # Add this line to satisfy the base class
 
     def get_queryset(self):
         user = self.request.user
-        # Get posts from friends and communities user follows
+        
+        # Get a list of communities the user is a member of
+        user_communities = user.community_memberships.values('community')
+
         return Post.objects.filter(
             Q(author__in=user.friendship_requests_sent.filter(status='accepted').values('to_user')) |
             Q(author__in=user.friendship_requests_received.filter(status='accepted').values('from_user')) |
-            Q(community__members=user) |
+            Q(community__in=user_communities) |  # <-- This is the fixed query
             Q(author=user)
         ).distinct().order_by('-created_at')
 

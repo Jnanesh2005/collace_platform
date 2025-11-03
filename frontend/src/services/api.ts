@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+// This is the new variable we are exporting
+export const API_HOST = 'http://localhost:8000';
+
+const API_BASE_URL = `${API_HOST}/api`; // This now uses the variable
 
 const api = axios.create({
   baseURL: API_BASE_URL,

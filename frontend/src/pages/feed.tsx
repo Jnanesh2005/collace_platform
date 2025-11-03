@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react'; 
 import { usePosts } from '../hooks/use-posts';
 import { useAuth } from '../hooks/use-auth';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader } from '../components/ui/card';
 import { Input } from '../components/ui/input';
-import { Heart, MessageCircle, Share, MoreHorizontal } from 'lucide-react';
+import { Heart, MessageCircle, Share, MoreHorizontal, Image, Video, X } from 'lucide-react';
+import { API_HOST } from '../services/api'; 
+import { formatDate } from '../utils/helpers'; 
 
 const Feed: React.FC = () => {
   const { posts, loading, error, createPost, likePost, addComment } = usePosts();
@@ -13,19 +15,57 @@ const Feed: React.FC = () => {
   const [commentContent, setCommentContent] = useState<{ [key: number]: string }>({});
   const [showComments, setShowComments] = useState<{ [key: number]: boolean }>({});
 
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [postType, setPostType] = useState<'text' | 'image' | 'video'>('text');
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleMediaClick = (type: 'image' | 'video') => {
+    setPostType(type);
+    if (fileInputRef.current) {
+      fileInputRef.current.accept = type === 'image' ? 'image/*' : 'video/*';
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setMediaFile(file);
+      setMediaPreview(URL.createObjectURL(file));
+      setPostType(file.type.startsWith('image') ? 'image' : 'video');
+    }
+  };
+
+  const clearMedia = () => {
+    setMediaFile(null);
+    setMediaPreview(null);
+    setPostType('text');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPostContent.trim()) return;
+    if (!newPostContent.trim() && !mediaFile) return;
 
     const formData = new FormData();
     formData.append('content', newPostContent);
-    formData.append('post_type', 'text');
+    formData.append('post_type', postType);
+
+    if (mediaFile) {
+      formData.append('media_file', mediaFile);
+    }
 
     try {
       await createPost(formData);
       setNewPostContent('');
+      clearMedia();
     } catch (err) {
       console.error('Failed to create post:', err);
+      // You can add a user-facing error state here if you want
     }
   };
 
@@ -81,11 +121,42 @@ const Feed: React.FC = () => {
               onChange={(e) => setNewPostContent(e.target.value)}
               className="w-full"
             />
+            
+            {mediaPreview && (
+              <div className="relative">
+                {postType === 'image' ? (
+                  <img src={mediaPreview} alt="Preview" className="rounded-lg max-h-80 w-full object-cover" />
+                ) : (
+                  <video src={mediaPreview} controls className="rounded-lg max-h-80 w-full" />
+                )}
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 h-8 w-8 rounded-full"
+                  onClick={clearMedia}
+                >
+                  <X size={16} />
+                </Button>
+              </div>
+            )}
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
             <div className="flex justify-between items-center">
               <div className="flex space-x-2">
-                {/* Add media buttons would go here */}
+                <Button variant="ghost" type="button" onClick={() => handleMediaClick('image')}>
+                  <Image size={20} className="text-blue-500" />
+                </Button>
+                <Button variant="ghost" type="button" onClick={() => handleMediaClick('video')}>
+                  <Video size={20} className="text-red-500" />
+                </Button>
               </div>
-              <Button type="submit" disabled={!newPostContent.trim()}>
+              <Button type="submit" disabled={!newPostContent.trim() && !mediaFile}>
                 Post
               </Button>
             </div>
@@ -100,7 +171,7 @@ const Feed: React.FC = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center space-x-3">
                 <img
-                  src={post.author.avatar || '/default-avatar.png'}
+                  src={post.author.avatar ? `${API_HOST}${post.author.avatar}` : '/default-avatar.png'}
                   alt={post.author.username}
                   className="w-10 h-10 rounded-full"
                 />
@@ -109,16 +180,36 @@ const Feed: React.FC = () => {
                     {post.author.first_name} {post.author.last_name}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    @{post.author.username} · {new Date(post.created_at).toLocaleDateString()}
+                    @{post.author.username} · {formatDate(post.created_at)}
                   </p>
                 </div>
               </div>
             </CardHeader>
 
             <CardContent className="pb-4">
-              <p className="text-gray-800 dark:text-gray-200 mb-4 whitespace-pre-wrap">
-                {post.content}
-              </p>
+              {post.content && (
+                <p className="text-gray-800 dark:text-gray-200 mb-4 whitespace-pre-wrap">
+                  {post.content}
+                </p>
+              )}
+
+              {post.media_file && (
+                <div className="mb-4">
+                  {post.post_type === 'image' ? (
+                    <img
+                      src={`${API_HOST}${post.media_file}`}
+                      alt="Post content"
+                      className="rounded-lg max-h-96 w-full object-cover"
+                    />
+                  ) : post.post_type === 'video' ? (
+                    <video
+                      src={`${API_HOST}${post.media_file}`}
+                      controls
+                      className="rounded-lg w-full"
+                    />
+                  ) : null}
+                </div>
+              )}
 
               {/* Post Actions */}
               <div className="flex items-center justify-between text-gray-500">
@@ -160,7 +251,7 @@ const Feed: React.FC = () => {
                   {/* Add Comment */}
                   <div className="flex space-x-2">
                     <img
-                      src={user?.avatar || '/default-avatar.png'}
+                      src={user?.avatar ? `${API_HOST}${user.avatar}` : '/default-avatar.png'}
                       alt={user?.username}
                       className="w-8 h-8 rounded-full"
                     />
@@ -191,7 +282,7 @@ const Feed: React.FC = () => {
                   {post.comments.map((comment) => (
                     <div key={comment.id} className="flex space-x-3">
                       <img
-                        src={comment.user.avatar || '/default-avatar.png'}
+                        src={comment.user.avatar ? `${API_HOST}${comment.user.avatar}` : '/default-avatar.png'}
                         alt={comment.user.username}
                         className="w-8 h-8 rounded-full"
                       />
@@ -202,7 +293,7 @@ const Feed: React.FC = () => {
                               {comment.user.first_name} {comment.user.last_name}
                             </span>
                             <span className="text-xs text-gray-500">
-                              {new Date(comment.created_at).toLocaleDateString()}
+                              {formatDate(comment.created_at)}
                             </span>
                           </div>
                           <p className="text-sm text-gray-700 dark:text-gray-300">

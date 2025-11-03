@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/posts/', include('apps.posts.urls')),
     path('api/communities/', include('apps.communities.urls')),
     path('api/blips/', include('apps.blips.urls')),
+
 ]
 
 if settings.DEBUG:

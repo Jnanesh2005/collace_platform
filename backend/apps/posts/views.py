@@ -4,13 +4,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Q
 
+# NEW: Import the parsers
+from rest_framework.parsers import MultiPartParser, FormParser
+
 from .models import Post, Like, Comment
 from .serializers import PostSerializer, CreatePostSerializer, CommentSerializer, LikeSerializer
 
 class PostListView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
-    queryset = Post.objects.all()  # Add this line to satisfy the base class
+    queryset = Post.objects.all()  # Add this line to prevent assertion errors
 
     def get_queryset(self):
         user = self.request.user
@@ -21,7 +24,7 @@ class PostListView(generics.ListAPIView):
         return Post.objects.filter(
             Q(author__in=user.friendship_requests_sent.filter(status='accepted').values('to_user')) |
             Q(author__in=user.friendship_requests_received.filter(status='accepted').values('from_user')) |
-            Q(community__in=user_communities) |  # <-- This is the fixed query
+            Q(community__in=user_communities) |
             Q(author=user)
         ).distinct().order_by('-created_at')
 
@@ -29,6 +32,7 @@ class CreatePostView(generics.CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = CreatePostSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]  # <-- THIS IS THE FIX
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

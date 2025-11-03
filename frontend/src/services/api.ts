@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-// This is the new variable we are exporting
-export const API_HOST = 'http://localhost:8000';
+// FIX 1: Use a relative path so the Vite proxy catches all requests
+const API_BASE_URL = '/api'; 
 
-const API_BASE_URL = `${API_HOST}/api`; // This now uses the variable
+// FIX 2: Export the host URL for displaying images/videos in the app
+export const API_HOST = 'http://localhost:8000'; 
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -12,9 +13,15 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
+    // FIX 3: If we are sending FormData (a file), delete the 'Content-Type' header
+    // The browser will automatically set the correct 'multipart/form-data' header
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -26,7 +33,7 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle token refresh
+// Response interceptor
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -38,7 +45,8 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         if (refreshToken) {
-          const response = await axios.post(`${API_BASE_URL}/auth/token/refresh/`, {
+          // FIX 4: Use a relative path for the refresh token request as well
+          const response = await axios.post('/api/auth/token/refresh/', {
             refresh: refreshToken,
           });
           
@@ -49,7 +57,6 @@ api.interceptors.response.use(
           return api(originalRequest);
         }
       } catch (refreshError) {
-        // Token refresh failed, logout user
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');

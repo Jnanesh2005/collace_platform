@@ -79,7 +79,8 @@ const Communities: React.FC = () => {
             <div 
               className="h-32 bg-gradient-to-r from-blue-400 to-purple-500"
               style={{
-                backgroundImage: community.cover_image ? `url(${community.cover_image})` : undefined,
+                // --- UPDATE THIS LINE ---
+                backgroundImage: community.cover_image_url ? `url(${community.cover_image_url})` : undefined,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
               }}
@@ -89,7 +90,8 @@ const Communities: React.FC = () => {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3 -mt-12">
                   <img
-                    src={community.avatar || '/default-community.png'}
+                    // --- UPDATE THIS LINE ---
+                    src={community.avatar_url || '/default-community.png'}
                     alt={community.name}
                     className="w-16 h-16 rounded-full border-4 border-white dark:border-gray-800 bg-white"
                   />

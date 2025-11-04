@@ -10,6 +10,9 @@ export interface User {
   cover_image: string | null;
   is_verified: boolean;
   created_at: string;
+  // --- ADD THESE ---
+  avatar_url: string | null;
+  cover_image_url: string | null;
 }
 
 export interface Post {
@@ -18,6 +21,8 @@ export interface Post {
   content: string;
   post_type: 'text' | 'image' | 'video' | 'poll';
   media_file: string | null;
+  // --- ADD THIS ---
+  media_file_url: string | null;
   likes_count: number;
   comments_count: number;
   is_liked: boolean;
@@ -42,6 +47,9 @@ export interface Community {
   is_official: boolean;
   cover_image: string | null;
   avatar: string | null;
+  // --- ADD THESE ---
+  cover_image_url: string | null;
+  avatar_url: string | null;
   created_by: User;
   members_count: number;
   is_member: boolean;
@@ -50,6 +58,7 @@ export interface Community {
   updated_at: string;
 }
 
+// ... (rest of the file is the same)
 export interface Blip {
   id: number;
   user: User;

@@ -43,12 +43,28 @@ class UserLoginSerializer(serializers.Serializer):
         return data
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    # --- ADD THESE TWO LINES ---
+    avatar_url = serializers.SerializerMethodField()
+    cover_image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = User
+        # --- UPDATE THE FIELDS TUPLE ---
         fields = ('id', 'username', 'email', 'college', 'first_name', 
                  'last_name', 'bio', 'avatar', 'cover_image', 'is_verified',
-                 'created_at')
+                 'created_at', 'avatar_url', 'cover_image_url') # Added new fields
         read_only_fields = ('id', 'email', 'is_verified', 'created_at')
+
+    # --- ADD THESE TWO METHODS ---
+    def get_avatar_url(self, obj):
+        if obj.avatar:
+            return obj.avatar.url
+        return None
+    
+    def get_cover_image_url(self, obj):
+        if obj.cover_image:
+            return obj.cover_image.url
+        return None
 
 class FriendshipSerializer(serializers.ModelSerializer):
     from_user = UserProfileSerializer(read_only=True)

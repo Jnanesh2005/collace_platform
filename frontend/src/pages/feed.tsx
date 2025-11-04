@@ -5,7 +5,8 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Heart, MessageCircle, Share, MoreHorizontal, Image, Video, X } from 'lucide-react';
-import { API_HOST } from '../services/api'; 
+// --- REMOVE API_HOST IMPORT ---
+// import { API_HOST } from '../services/api'; 
 import { formatDate } from '../utils/helpers'; 
 
 const Feed: React.FC = () => {
@@ -171,7 +172,8 @@ const Feed: React.FC = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center space-x-3">
                 <img
-                  src={post.author.avatar ? `${API_HOST}${post.author.avatar}` : '/default-avatar.png'}
+                  // --- UPDATE THIS LINE ---
+                  src={post.author.avatar_url || '/default-avatar.png'}
                   alt={post.author.username}
                   className="w-10 h-10 rounded-full"
                 />
@@ -193,23 +195,25 @@ const Feed: React.FC = () => {
                 </p>
               )}
 
-              {post.media_file && (
+              {/* --- UPDATE THIS BLOCK --- */}
+              {post.media_file_url && (
                 <div className="mb-4">
                   {post.post_type === 'image' ? (
                     <img
-                      src={`${API_HOST}${post.media_file}`}
+                      src={post.media_file_url}
                       alt="Post content"
                       className="rounded-lg max-h-96 w-full object-cover"
                     />
                   ) : post.post_type === 'video' ? (
                     <video
-                      src={`${API_HOST}${post.media_file}`}
+                      src={post.media_file_url}
                       controls
                       className="rounded-lg w-full"
                     />
                   ) : null}
                 </div>
               )}
+              {/* ------------------------- */}
 
               {/* Post Actions */}
               <div className="flex items-center justify-between text-gray-500">
@@ -251,7 +255,8 @@ const Feed: React.FC = () => {
                   {/* Add Comment */}
                   <div className="flex space-x-2">
                     <img
-                      src={user?.avatar ? `${API_HOST}${user.avatar}` : '/default-avatar.png'}
+                      // --- UPDATE THIS LINE ---
+                      src={user?.avatar_url || '/default-avatar.png'}
                       alt={user?.username}
                       className="w-8 h-8 rounded-full"
                     />
@@ -282,7 +287,8 @@ const Feed: React.FC = () => {
                   {post.comments.map((comment) => (
                     <div key={comment.id} className="flex space-x-3">
                       <img
-                        src={comment.user.avatar ? `${API_HOST}${comment.user.avatar}` : '/default-avatar.png'}
+                        // --- UPDATE THIS LINE ---
+                        src={comment.user.avatar_url || '/default-avatar.png'}
                         alt={comment.user.username}
                         className="w-8 h-8 rounded-full"
                       />

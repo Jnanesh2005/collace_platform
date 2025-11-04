@@ -3,8 +3,8 @@ import axios from 'axios';
 // FIX 1: Use a relative path so the Vite proxy catches all requests
 const API_BASE_URL = '/api'; 
 
-// FIX 2: Export the host URL for displaying images/videos in the app
-export const API_HOST = 'http://localhost:8000'; 
+// FIX 2: Export an EMPTY host URL so all media paths are relative
+export const API_HOST = ''; 
 
 const api = axios.create({
   baseURL: API_BASE_URL,

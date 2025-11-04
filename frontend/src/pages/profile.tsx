@@ -18,7 +18,8 @@ const Profile: React.FC = () => {
         <div 
           className="h-48 bg-gradient-to-r from-blue-500 to-purple-600"
           style={{
-            backgroundImage: user.cover_image ? `url(${user.cover_image})` : undefined,
+            // --- UPDATE THIS LINE ---
+            backgroundImage: user.cover_image_url ? `url(${user.cover_image_url})` : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
@@ -28,7 +29,8 @@ const Profile: React.FC = () => {
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-6 -mt-16">
               <img
-                src={user.avatar || '/default-avatar.png'}
+                // --- UPDATE THIS LINE ---
+                src={user.avatar_url || '/default-avatar.png'}
                 alt={user.username}
                 className="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 bg-white"
               />

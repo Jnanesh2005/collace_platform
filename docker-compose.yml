@@ -52,7 +52,7 @@ services:
       - backend
     environment:
       - VITE_API_URL=http://localhost:8000/api
-      - VITE_CHOKIDAR_USEPOLLING=true  # <-- THIS LINE FIXES CSS
+      - VITE_CHOKIDAR_USEPOLLING=true  # <-- THIS LINE FIXES FILE WATCHING & CSS
 
 volumes:
   postgres_data:

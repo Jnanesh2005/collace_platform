@@ -16,9 +16,17 @@ class CommunitySerializer(serializers.ModelSerializer):
     is_member = serializers.SerializerMethodField()
     user_role = serializers.SerializerMethodField()
     
+    # --- ADD THESE TWO LINES ---
+    cover_image_url = serializers.SerializerMethodField()
+    avatar_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = Community
-        fields = '__all__'
+        # --- UPDATE THE FIELDS TUPLE ---
+        fields = ('id', 'name', 'description', 'college', 'is_official', 
+                  'cover_image', 'avatar', 'created_by', 'created_at', 'updated_at',
+                  'members_count', 'is_member', 'user_role', 
+                  'cover_image_url', 'avatar_url') # Added new fields
         read_only_fields = ('created_by', 'created_at', 'updated_at')
     
     def get_members_count(self, obj):
@@ -35,6 +43,17 @@ class CommunitySerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             membership = obj.memberships.filter(user=request.user).first()
             return membership.role if membership else None
+        return None
+
+    # --- ADD THESE TWO METHODS ---
+    def get_cover_image_url(self, obj):
+        if obj.cover_image:
+            return obj.cover_image.url
+        return None
+    
+    def get_avatar_url(self, obj):
+        if obj.avatar:
+            return obj.avatar.url
         return None
 
 class CreateCommunitySerializer(serializers.ModelSerializer):

@@ -3,8 +3,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Q
-
-# NEW: Import the parsers
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import Post, Like, Comment
@@ -13,12 +11,11 @@ from .serializers import PostSerializer, CreatePostSerializer, CommentSerializer
 class PostListView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
-    queryset = Post.objects.all()  # Add this line to prevent assertion errors
+    queryset = Post.objects.all()
 
     def get_queryset(self):
         user = self.request.user
         
-        # Get a list of communities the user is a member of
         user_communities = user.community_memberships.values('community')
 
         return Post.objects.filter(
@@ -32,7 +29,7 @@ class CreatePostView(generics.CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = CreatePostSerializer
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]  # <-- THIS IS THE FIX
+    parser_classes = [MultiPartParser, FormParser]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

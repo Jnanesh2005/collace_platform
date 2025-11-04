@@ -17,7 +17,14 @@ class Post(models.Model):
     
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     community = models.ForeignKey(Community, on_delete=models.CASCADE, null=True, blank=True, related_name='posts')
-    content = models.TextField()
+    
+    # --- THIS IS THE FIX ---
+    # Change this line:
+    # content = models.TextField()
+    # To this:
+    content = models.TextField(blank=True)
+    # ---------------------
+
     post_type = models.CharField(max_length=10, choices=POST_TYPES, default=TEXT)
     media_file = models.FileField(upload_to='posts/media/', null=True, blank=True)
     likes_count = models.IntegerField(default=0)
